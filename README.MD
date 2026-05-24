@@ -66,7 +66,7 @@ Uses `DataFrame.append`, deprecated in pandas 1.4 and removed in 2.0. The functi
 **`utils.py/aggregate_to_weekly` function:**
 At the data boundaries the first and/or last bucket only holds a few days but gets summed like a full week, giving low-demand rows that look like a real drop. Add an `n_days` column so we can filter on `n_days == 7`.
 
-### Optional task — unexpected behaviour
+### Optional task - unexpected behaviour
 
 Picked `clean_demand_per_group`. It looks like a normal "take a dataframe, return a cleaned dataframe" function, but it writes back into the input via `.loc` and returns the same object it was given. If you call it and still have a reference to the original frame, you'll find it has silently changed, even after you assigned the return value to a new name.
 

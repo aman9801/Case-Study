@@ -51,8 +51,24 @@ The exercise consists of reviewing the `utils.py` file and performing the follow
 
 ### Comments on utils.py
 
-_your answer here_
+**`utils.py/clean` function:**
+Falls back to the series mean for tail NaNs, which ignores seasonality. Fine for the short scattered gaps in this data, bad if a long gap ever lands at the end. And if a whole series is NaN it just returns NaN without saying so.
 
+**`utils.py/clean_demand_per_group` function:**
+Changes the input DataFrame directly via `.loc`, so the original gets modified without warning. Make a copy on entry. The nested loop also runs over sku × supermarket pairs that might not exist in the data; `groupby([]).transform(clean)` does the same job in one line.
+
+**`utils.py/merge` function:**
+Should be a `left` join with demand on the left, not an outer join. The demand grid already has a row for every (sku, supermarket, date) we care about; promotions are just an attribute to flag on those rows. With the outer join, any promo date that doesn't line up with demand gets added as an extra row with NaN demand, which then leaks into the weekly aggregation. Switch to `how='left'`.
+
+**`utils.py/extend_promotions_days` function:**
+Uses `DataFrame.append`, deprecated in pandas 1.4 and removed in 2.0. The function raises `AttributeError` on any latest pandas install. Replace it with `pd.concat`.
+
+**`utils.py/aggregate_to_weekly` function:**
+At the data boundaries the first and/or last bucket only holds a few days but gets summed like a full week, giving low-demand rows that look like a real drop. Add an `n_days` column so we can filter on `n_days == 7`.
+
+### Optional task — unexpected behaviour
+
+Picked `clean_demand_per_group`. It looks like a normal "take a dataframe, return a cleaned dataframe" function, but it writes back into the input via `.loc` and returns the same object it was given. If you call it and still have a reference to the original frame, you'll find it has silently changed, even after you assigned the return value to a new name.
 
 ## 2. Exploratory data analysis
 
